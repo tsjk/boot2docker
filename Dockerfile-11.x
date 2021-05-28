@@ -2,8 +2,7 @@ FROM debian:buster-slim
 
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-xc"]
 
-RUN	chmod ugo+r /etc/resolv.conf; \
-	apt-get update; \
+RUN apt-get update; \
 	apt-get install -y --no-install-recommends \
 		bash-completion \
 		bc \
@@ -35,12 +34,12 @@ WORKDIR /rootfs
 
 # updated via "update.sh"
 ENV TCL_MIRRORS http://distro.ibiblio.org/tinycorelinux http://repo.tinycorelinux.net
-ENV TCL_MAJOR 10.x
-ENV TCL_VERSION 10.1
+ENV TCL_MAJOR 11.x
+ENV TCL_VERSION 11.1
 
 # http://distro.ibiblio.org/tinycorelinux/8.x/x86_64/archive/8.2.1/distribution_files/rootfs64.gz.md5.txt
 # updated via "update.sh"
-ENV TCL_ROOTFS="rootfs64.gz" TCL_ROOTFS_MD5="ec65d3b2bbb64f62a171f60439c84127"
+ENV TCL_ROOTFS="rootfs64.gz" TCL_ROOTFS_MD5="3c5846fd0eb2f4ecc15e424678ef7919"
 
 COPY files/tce-load.patch files/udhcpc.patch /tcl-patches/
 
@@ -100,7 +99,7 @@ RUN tcl-chroot adduser \
 		-s /bin/sh \
 		-G staff \
 		-D \
-		-u 501 \
+		-u 1000 \
 		docker \
 	; \
 	echo 'docker:tcuser' | tcl-chroot chpasswd; \
@@ -176,7 +175,7 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 4.14.234
+ENV LINUX_VERSION 4.14.176
 
 RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
 	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
@@ -189,7 +188,7 @@ RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERS
 	export GNUPGHOME="$(mktemp -d)"; \
 	for key in $LINUX_GPG_KEYS; do \
 		for mirror in \
-			pool.sks-keyservers.net \
+			ha.pool.sks-keyservers.net \
 			pgp.mit.edu \
 			hkp://p80.pool.sks-keyservers.net:80 \
 			ipv4.pool.sks-keyservers.net \
@@ -293,7 +292,6 @@ RUN setConfs="$(grep -vEh '^[#-]' /kernel-config.d/* | sort -u)"; \
 	done; \
 	[ -z "$ret" ] || exit "$ret"
 
-RUN ( cd /usr/src/linux && wget -qO- 'https://github.com/torvalds/linux/commit/2a18287b54f8.patch' | patch --verbose -p1 )
 RUN make -C /usr/src/linux -j "$(nproc)" bzImage modules; \
 	make -C /usr/src/linux INSTALL_MOD_PATH="$PWD" modules_install
 RUN mkdir -p /tmp/iso/boot; \
@@ -303,27 +301,19 @@ RUN tcl-tce-load \
 		acpid \
 		bash-completion \
 		ca-certificates \
-		cifs-utils \
 		curl \
 		e2fsprogs \
-		file \
 		git \
 		iproute2 \
 		iptables \
-		libnfs \
-		nano \
-		nano-doc \
-		nano-locale \
-		ncurses-terminfo \
+		ncursesw-terminfo \
 		nfs-utils \
 		openssh \
-		openssl \
+		openssl-1.1.1 \
 		parted \
 		procps-ng \
 		rsync \
-		samba-libs \
 		tar \
-		tzdata \
 		util-linux \
 		xz
 
@@ -333,15 +323,15 @@ RUN echo 'for i in /usr/local/etc/profile.d/*.sh ; do if [ -r "$i" ]; then . $i;
 # Docker expects to find certs in /etc/ssl
 	ln -svT ../usr/local/etc/ssl etc/ssl; \
 # make sure the Docker group exists and we're part of it
-	tcl-chroot sh -eux -c 'addgroup -S -g 501 docker && addgroup docker docker'
+	tcl-chroot sh -eux -c 'addgroup -S docker && addgroup docker docker'
 
 # install kernel headers so we can use them for building xen-utils, etc
 RUN make -C /usr/src/linux INSTALL_HDR_PATH=/usr/local headers_install
 
 # https://lkml.org/lkml/2018/4/12/711 (https://github.com/boot2docker/boot2docker/pull/1322)
 # https://github.com/jirka-h/haveged/releases
-ENV HAVEGED_VERSION 1.9.14
-RUN wget -O /haveged.tgz "https://github.com/jirka-h/haveged/archive/v${HAVEGED_VERSION}.tar.gz"; \
+ENV HAVEGED_VERSION 1.9.4
+RUN wget -O /haveged.tgz "https://github.com/jirka-h/haveged/archive/${HAVEGED_VERSION}.tar.gz"; \
 	mkdir /usr/src/haveged; \
 	tar --extract --file /haveged.tgz --directory /usr/src/haveged --strip-components 1; \
 	rm /haveged.tgz
@@ -354,9 +344,9 @@ RUN ( cd /usr/src/haveged && ./configure LDFLAGS='-static --static' ); \
 
 # http://download.virtualbox.org/virtualbox/
 # updated via "update.sh"
-ENV VBOX_VERSION 6.1.22
+ENV VBOX_VERSION 6.1.6
 # https://www.virtualbox.org/download/hashes/$VBOX_VERSION/SHA256SUMS
-ENV VBOX_SHA256 bffc316a7b8d5ed56d830e9f6aef02b4e5ffc28674032142e96ffbedd905f8c9
+ENV VBOX_SHA256 bcde4691dea7de93b65a10a43dda2b8f52e570f820992ad281c9bb5c8dede181
 # (VBoxGuestAdditions_X.Y.Z.iso SHA256, for verification)
 
 RUN wget -O /vbox.iso "https://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso"; \
@@ -385,9 +375,7 @@ RUN tcl-tce-load open-vm-tools; \
 	tcl-chroot vmtoolsd --version
 
 #ENV PARALLELS_VERSION 13.3.0-43321
-#ENV PARALLELS_VERSION 15.1.4-47270
-#ENV PARALLELS_VERSION 16.1.2-49151
-ENV PARALLELS_VERSION 16.1.3-49160
+ENV PARALLELS_VERSION 15.1.4-47270
 
 RUN wget -O /parallels.tgz "https://download.parallels.com/desktop/v${PARALLELS_VERSION%%.*}/$PARALLELS_VERSION/ParallelsTools-$PARALLELS_VERSION-boot2docker.tar.gz"; \
 	mkdir /usr/src/parallels; \
@@ -405,19 +393,13 @@ RUN cp -vr /usr/src/parallels/tools/* ./; \
 
 # https://github.com/xenserver/xe-guest-utilities/tags
 # updated via "update.sh"
-ENV XEN_VERSION 7.30.0
+ENV XEN_VERSION 7.13.0
 
 RUN wget -O /xen.tgz "https://github.com/xenserver/xe-guest-utilities/archive/v$XEN_VERSION.tar.gz"; \
 	mkdir /usr/src/xen; \
 	tar --extract --file /xen.tgz --directory /usr/src/xen --strip-components 1; \
 	rm /xen.tgz
-# download "golang.org/x/sys/unix" dependency (new in 7.14.0)
-RUN cd /usr/src/xen; \
-	mkdir -p GOPATH/src/golang.org/x/sys; \
-	wget -O sys.tgz 'https://github.com/golang/sys/archive/fc99dfbffb4e5ed5758a37e31dd861afe285406b.tar.gz'; \
-	tar -xf sys.tgz -C GOPATH/src/golang.org/x/sys --strip-components 1; \
-	rm sys.tgz
-RUN GOPATH='/usr/src/xen/GOPATH' make -C /usr/src/xen -j "$(nproc)" PRODUCT_VERSION="$XEN_VERSION" RELEASE='boot2docker'; \
+RUN make -C /usr/src/xen -j "$(nproc)" PRODUCT_VERSION="$XEN_VERSION" RELEASE='boot2docker'; \
 	tar --extract --file "/usr/src/xen/build/dist/xe-guest-utilities_$XEN_VERSION-boot2docker_x86_64.tgz"; \
 	tcl-chroot xenstore || [ "$?" = 1 ]
 
@@ -436,10 +418,10 @@ RUN wget -O usr/local/sbin/cgroupfs-mount "https://github.com/tianon/cgroupfs-mo
 	chmod +x usr/local/sbin/cgroupfs-mount; \
 	tcl-chroot cgroupfs-mount
 
-ENV DOCKER_VERSION 20.10.6
+ENV DOCKER_VERSION 19.03.8
 
 # Get the Docker binaries with version that matches our boot2docker version.
-RUN DOCKER_CHANNEL='stable'; \
+RUN DOCKER_CHANNEL='edge'; \
 	case "$DOCKER_VERSION" in \
 # all the pre-releases go in the "test" channel
 		*-rc* | *-beta* | *-tp* ) DOCKER_CHANNEL='test' ;; \
@@ -450,7 +432,7 @@ RUN DOCKER_CHANNEL='stable'; \
 	rm /docker.tgz; \
 	\
 # download bash-completion too
-	wget -O usr/local/share/bash-completion/completions/docker "https://github.com/docker/cli/raw/v${DOCKER_VERSION}/contrib/completion/bash/docker"; \
+	wget -O usr/local/share/bash-completion/completions/docker "https://github.com/docker/docker-ce/raw/v${DOCKER_VERSION}/components/cli/contrib/completion/bash/docker"; \
 	\
 	for binary in \
 		containerd \
@@ -462,12 +444,6 @@ RUN DOCKER_CHANNEL='stable'; \
 	; do \
 		chroot . "$binary" --version; \
 	done
-
-# CTOP - https://github.com/bcicen/ctop
-ENV CTOP_VERSION 0.7.5
-RUN wget -O usr/local/bin/ctop \
-	https://github.com/bcicen/ctop/releases/download/v$CTOP_VERSION/ctop-$CTOP_VERSION-linux-amd64 ; \
-	chmod +x usr/local/bin/ctop
 
 # set up a few branding bits
 RUN { \
@@ -535,9 +511,9 @@ RUN [ ! -f usr/local/etc/sshd_config ]; \
 	echo 'UTC' > etc/timezone; \
 	cp -vL /usr/share/zoneinfo/UTC etc/localtime; \
 # "dockremap" user/group so "--userns-remap=default" works out-of-the-box
-	tcl-chroot addgroup -S -g 101 dockremap; \
-	tcl-chroot adduser -S -u 101 -G dockremap dockremap; \
-	echo 'dockremap:1065536:65536' | tee etc/subuid | tee etc/subgid
+	tcl-chroot addgroup -S dockremap; \
+	tcl-chroot adduser -S -G dockremap dockremap; \
+	echo 'dockremap:165536:65536' | tee etc/subuid | tee etc/subgid
 
 RUN savedAptMark="$(apt-mark showmanual)"; \
 	apt-get update; \
@@ -562,16 +538,6 @@ COPY files/isolinux.cfg /tmp/iso/isolinux/
 
 COPY files/init.d/* ./etc/init.d/
 COPY files/bootsync.sh ./opt/
-
-# change id of group staff so that it corresponds to macOS's
-RUN sed -i -e 's@^staff:x:50:@staff:x:20:@' etc/group; \
-	grep -E '^staff:' etc/group | grep -E '^staff:x:20:'; \
-	sed -i -e 's@^docker:x:501:50:@docker:x:501:20:@' etc/passwd; \
-	grep -E '^docker:' etc/passwd | grep -E '^docker:x:501:20:'; \
-	sed -i -e 's@^tc:x:1001:50:@tc:x:1001:20:@' etc/passwd; \
-	grep -E '^tc:' etc/passwd | grep -E '^tc:x:1001:20:'; \
-	[ -z "$(awk -F ':' '($4 == "50") { print $4 }' etc/passwd)" ]; \
-	find . -xdev -group 50 -exec chgrp -h 20 {} \;
 
 # temporary boot debugging aid
 #RUN sed -i '2i set -x' etc/init.d/tc-config
