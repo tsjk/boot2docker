@@ -387,7 +387,8 @@ RUN tcl-tce-load open-vm-tools; \
 #ENV PARALLELS_VERSION 13.3.0-43321
 #ENV PARALLELS_VERSION 15.1.4-47270
 #ENV PARALLELS_VERSION 16.1.2-49151
-ENV PARALLELS_VERSION 16.1.3-49160
+#ENV PARALLELS_VERSION 16.1.3-49160
+ENV PARALLELS_VERSION 16.5.0-49183
 
 RUN wget -O /parallels.tgz "https://download.parallels.com/desktop/v${PARALLELS_VERSION%%.*}/$PARALLELS_VERSION/ParallelsTools-$PARALLELS_VERSION-boot2docker.tar.gz"; \
 	mkdir /usr/src/parallels; \
