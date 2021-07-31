@@ -176,7 +176,7 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 4.14.235
+ENV LINUX_VERSION 4.14.241
 
 RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
 	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
@@ -189,12 +189,12 @@ RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERS
 	export GNUPGHOME="$(mktemp -d)"; \
 	for key in $LINUX_GPG_KEYS; do \
 		for mirror in \
-			pool.sks-keyservers.net \
-			pgp.mit.edu \
-			hkp://p80.pool.sks-keyservers.net:80 \
-			ipv4.pool.sks-keyservers.net \
 			keyserver.ubuntu.com \
 			hkp://keyserver.ubuntu.com:80 \
+			pgp.mit.edu \
+			pool.sks-keyservers.net \
+			hkp://p80.pool.sks-keyservers.net:80 \
+			ipv4.pool.sks-keyservers.net \
 		; do \
 			if gpg --batch --verbose --keyserver "$mirror" --keyserver-options timeout=5 --recv-keys "$key"; then \
 				break; \
@@ -354,9 +354,9 @@ RUN ( cd /usr/src/haveged && ./configure LDFLAGS='-static --static' ); \
 
 # http://download.virtualbox.org/virtualbox/
 # updated via "update.sh"
-ENV VBOX_VERSION 6.1.22
+ENV VBOX_VERSION 6.1.26
 # https://www.virtualbox.org/download/hashes/$VBOX_VERSION/SHA256SUMS
-ENV VBOX_SHA256 bffc316a7b8d5ed56d830e9f6aef02b4e5ffc28674032142e96ffbedd905f8c9
+ENV VBOX_SHA256 22d02ec417cd7723d7269dbdaa71c48815f580c0ca7a0606c42bd623f84873d7
 # (VBoxGuestAdditions_X.Y.Z.iso SHA256, for verification)
 
 RUN wget -O /vbox.iso "https://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso"; \
@@ -467,7 +467,7 @@ RUN DOCKER_CHANNEL='stable'; \
 # CTOP - https://github.com/bcicen/ctop
 ENV CTOP_VERSION 0.7.6
 RUN wget -O usr/local/bin/ctop \
-	https://github.com/bcicen/ctop/releases/download/v$CTOP_VERSION/ctop-$CTOP_VERSION-linux-amd64 ; \
+	https://github.com/bcicen/ctop/releases/download/$CTOP_VERSION/ctop-$CTOP_VERSION-linux-amd64 ; \
 	chmod +x usr/local/bin/ctop
 
 # set up a few branding bits
