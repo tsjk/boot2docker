@@ -176,7 +176,7 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 4.14.246
+ENV LINUX_VERSION 4.14.248
 
 RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
 	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
@@ -340,7 +340,7 @@ RUN make -C /usr/src/linux INSTALL_HDR_PATH=/usr/local headers_install
 
 # https://lkml.org/lkml/2018/4/12/711 (https://github.com/boot2docker/boot2docker/pull/1322)
 # https://github.com/jirka-h/haveged/releases
-ENV HAVEGED_VERSION 1.9.14
+ENV HAVEGED_VERSION 1.9.15
 RUN wget -O /haveged.tgz "https://github.com/jirka-h/haveged/archive/v${HAVEGED_VERSION}.tar.gz"; \
 	mkdir /usr/src/haveged; \
 	tar --extract --file /haveged.tgz --directory /usr/src/haveged --strip-components 1; \
@@ -406,7 +406,7 @@ RUN cp -vr /usr/src/parallels/tools/* ./; \
 
 # https://github.com/xenserver/xe-guest-utilities/tags
 # updated via "update.sh"
-ENV XEN_VERSION 7.30.0
+ENV XEN_VERSION 7.23.0
 
 RUN wget -O /xen.tgz "https://github.com/xenserver/xe-guest-utilities/archive/v$XEN_VERSION.tar.gz"; \
 	mkdir /usr/src/xen; \
@@ -437,7 +437,7 @@ RUN wget -O usr/local/sbin/cgroupfs-mount "https://github.com/tianon/cgroupfs-mo
 	chmod +x usr/local/sbin/cgroupfs-mount; \
 	tcl-chroot cgroupfs-mount
 
-ENV DOCKER_VERSION 20.10.8
+ENV DOCKER_VERSION 20.10.9
 
 # Get the Docker binaries with version that matches our boot2docker version.
 RUN DOCKER_CHANNEL='stable'; \
