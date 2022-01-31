@@ -176,7 +176,7 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 4.14.255
+ENV LINUX_VERSION 4.14.264
 
 RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
 	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
@@ -340,7 +340,7 @@ RUN make -C /usr/src/linux INSTALL_HDR_PATH=/usr/local headers_install
 
 # https://lkml.org/lkml/2018/4/12/711 (https://github.com/boot2docker/boot2docker/pull/1322)
 # https://github.com/jirka-h/haveged/releases
-ENV HAVEGED_VERSION 1.9.15
+ENV HAVEGED_VERSION 1.9.17
 RUN wget -O /haveged.tgz "https://github.com/jirka-h/haveged/archive/v${HAVEGED_VERSION}.tar.gz"; \
 	mkdir /usr/src/haveged; \
 	tar --extract --file /haveged.tgz --directory /usr/src/haveged --strip-components 1; \
@@ -354,9 +354,9 @@ RUN ( cd /usr/src/haveged && ./configure LDFLAGS='-static --static' ); \
 
 # http://download.virtualbox.org/virtualbox/
 # updated via "update.sh"
-ENV VBOX_VERSION 6.1.28
+ENV VBOX_VERSION 6.1.32
 # https://www.virtualbox.org/download/hashes/$VBOX_VERSION/SHA256SUMS
-ENV VBOX_SHA256 eab85206cfb9d7087982deb2635d19a4244a3c6783622a4817fb1a31e48e98e5
+ENV VBOX_SHA256 3ab8d64c209d89ffc48e71df68ac0da2cf76074579ffaf2dba008ddbef44129c
 # (VBoxGuestAdditions_X.Y.Z.iso SHA256, for verification)
 
 RUN wget -O /vbox.iso "https://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso"; \
@@ -388,7 +388,8 @@ RUN tcl-tce-load open-vm-tools; \
 #ENV PARALLELS_VERSION 15.1.4-47270
 #ENV PARALLELS_VERSION 16.1.2-49151
 #ENV PARALLELS_VERSION 16.1.3-49160
-ENV PARALLELS_VERSION 16.5.0-49183
+#ENV PARALLELS_VERSION 16.5.0-49183
+ENV PARALLELS_VERSION 16.5.2-50703
 
 RUN wget -O /parallels.tgz "https://download.parallels.com/desktop/v${PARALLELS_VERSION%%.*}/$PARALLELS_VERSION/ParallelsTools-$PARALLELS_VERSION-boot2docker.tar.gz"; \
 	mkdir /usr/src/parallels; \
@@ -406,7 +407,7 @@ RUN cp -vr /usr/src/parallels/tools/* ./; \
 
 # https://github.com/xenserver/xe-guest-utilities/tags
 # updated via "update.sh"
-ENV XEN_VERSION 7.23.0
+ENV XEN_VERSION 7.20.2
 
 RUN wget -O /xen.tgz "https://github.com/xenserver/xe-guest-utilities/archive/v$XEN_VERSION.tar.gz"; \
 	mkdir /usr/src/xen; \
@@ -437,7 +438,7 @@ RUN wget -O usr/local/sbin/cgroupfs-mount "https://github.com/tianon/cgroupfs-mo
 	chmod +x usr/local/sbin/cgroupfs-mount; \
 	tcl-chroot cgroupfs-mount
 
-ENV DOCKER_VERSION 20.10.10
+ENV DOCKER_VERSION 20.10.12
 
 # Get the Docker binaries with version that matches our boot2docker version.
 RUN DOCKER_CHANNEL='stable'; \
