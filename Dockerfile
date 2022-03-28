@@ -176,7 +176,7 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 4.14.264
+ENV LINUX_VERSION 4.14.274
 
 RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
 	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
@@ -389,7 +389,8 @@ RUN tcl-tce-load open-vm-tools; \
 #ENV PARALLELS_VERSION 16.1.2-49151
 #ENV PARALLELS_VERSION 16.1.3-49160
 #ENV PARALLELS_VERSION 16.5.0-49183
-ENV PARALLELS_VERSION 16.5.2-50703
+#ENV PARALLELS_VERSION 16.5.2-50703
+ENV PARALLELS_VERSION 17.1.1-51537
 
 RUN wget -O /parallels.tgz "https://download.parallels.com/desktop/v${PARALLELS_VERSION%%.*}/$PARALLELS_VERSION/ParallelsTools-$PARALLELS_VERSION-boot2docker.tar.gz"; \
 	mkdir /usr/src/parallels; \
@@ -438,7 +439,7 @@ RUN wget -O usr/local/sbin/cgroupfs-mount "https://github.com/tianon/cgroupfs-mo
 	chmod +x usr/local/sbin/cgroupfs-mount; \
 	tcl-chroot cgroupfs-mount
 
-ENV DOCKER_VERSION 20.10.12
+ENV DOCKER_VERSION 20.10.14
 
 # Get the Docker binaries with version that matches our boot2docker version.
 RUN DOCKER_CHANNEL='stable'; \
@@ -466,9 +467,9 @@ RUN DOCKER_CHANNEL='stable'; \
 	done
 
 # CTOP - https://github.com/bcicen/ctop
-ENV CTOP_VERSION 0.7.6
+ENV CTOP_VERSION 0.7.7
 RUN wget -O usr/local/bin/ctop \
-	https://github.com/bcicen/ctop/releases/download/$CTOP_VERSION/ctop-$CTOP_VERSION-linux-amd64 ; \
+	https://github.com/bcicen/ctop/releases/download/v$CTOP_VERSION/ctop-$CTOP_VERSION-linux-amd64 ; \
 	chmod +x usr/local/bin/ctop
 
 # set up a few branding bits
