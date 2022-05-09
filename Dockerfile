@@ -119,7 +119,7 @@ RUN mkdir -p proc; \
 
 # as of squashfs-tools 4.4, TCL's unsquashfs is broken... (fails to unsquashfs *many* core tcz files)
 # https://github.com/plougher/squashfs-tools/releases
-ENV SQUASHFS_VERSION 4.5
+ENV SQUASHFS_VERSION 4.5.1
 RUN wget -O squashfs.tgz "https://github.com/plougher/squashfs-tools/archive/$SQUASHFS_VERSION.tar.gz"; \
 	tar --directory=/usr/src --extract --file=squashfs.tgz; \
 	make -C "/usr/src/squashfs-tools-$SQUASHFS_VERSION/squashfs-tools" \
@@ -176,7 +176,7 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 4.14.274
+ENV LINUX_VERSION 4.14.277
 
 RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
 	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
@@ -340,7 +340,7 @@ RUN make -C /usr/src/linux INSTALL_HDR_PATH=/usr/local headers_install
 
 # https://lkml.org/lkml/2018/4/12/711 (https://github.com/boot2docker/boot2docker/pull/1322)
 # https://github.com/jirka-h/haveged/releases
-ENV HAVEGED_VERSION 1.9.17
+ENV HAVEGED_VERSION 1.9.18
 RUN wget -O /haveged.tgz "https://github.com/jirka-h/haveged/archive/v${HAVEGED_VERSION}.tar.gz"; \
 	mkdir /usr/src/haveged; \
 	tar --extract --file /haveged.tgz --directory /usr/src/haveged --strip-components 1; \
@@ -354,9 +354,9 @@ RUN ( cd /usr/src/haveged && ./configure LDFLAGS='-static --static' ); \
 
 # http://download.virtualbox.org/virtualbox/
 # updated via "update.sh"
-ENV VBOX_VERSION 6.1.32
+ENV VBOX_VERSION 6.1.34
 # https://www.virtualbox.org/download/hashes/$VBOX_VERSION/SHA256SUMS
-ENV VBOX_SHA256 3ab8d64c209d89ffc48e71df68ac0da2cf76074579ffaf2dba008ddbef44129c
+ENV VBOX_SHA256 88f86fa0e6970b6a7c80d714b7a91a8c425ff8ef53a3e73fc80781191a87257b
 # (VBoxGuestAdditions_X.Y.Z.iso SHA256, for verification)
 
 RUN wget -O /vbox.iso "https://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso"; \
@@ -439,7 +439,7 @@ RUN wget -O usr/local/sbin/cgroupfs-mount "https://github.com/tianon/cgroupfs-mo
 	chmod +x usr/local/sbin/cgroupfs-mount; \
 	tcl-chroot cgroupfs-mount
 
-ENV DOCKER_VERSION 20.10.14
+ENV DOCKER_VERSION 20.10.15
 
 # Get the Docker binaries with version that matches our boot2docker version.
 RUN DOCKER_CHANNEL='stable'; \
